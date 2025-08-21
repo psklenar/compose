@@ -1,5 +1,16 @@
 # compose
-❯ ./compose.py --help
+
+A tool for comparing Fedora Rawhide compose RPM changes.
+
+---
+
+## Usage
+
+```sh
+./compose.py --help
+```
+
+```text
 usage: compose.py [-h] [-u URL] [-r RPMSJSON] [-l [LIST_COMPOSES]] [-d TWO_COMPOSES]
 
 compose rpm change log
@@ -10,64 +21,143 @@ options:
   -r, --rpmsjson RPMSJSON
                         care about the rpms.json file
   -l, --list [LIST_COMPOSES]
-                        Outputs a list of Rawhide composes built in the past X days ; sorted as the first = the oldest
+                        Outputs a list of Rawhide composes built in the past X days; sorted oldest first
   -d, --diff TWO_COMPOSES
-                        specify TWO composes: -d one -d two for.ex. --diff Fedora-Rawhide-20250807.n.1 --diff Fedora-Rawhide-20250814.n.0"
+                        specify TWO composes: -d one -d two, for example:
+                        --diff Fedora-Rawhide-20250807.n.1 --diff Fedora-Rawhide-20250814.n.0
+```
+
+---
+
+## Option Usage
+
+### `--list`
+
+- Lists available Fedora Rawhide composes.
+- Optional argument: number of oldest composes to show.
+
+### `--diff`
+
+- Compares two composes for RPM changes.
+- Requires two valid compose names (as shown by `--list`).
+- Checks for existence and validates input.
+
+### Option Combination
+
+- `--list` should be used on its own.
+- `--diff` must be provided twice, each with a valid compose name from the `--list` output.
+
+---
+
+## Examples
+
+### ❌ **Wrong Usage**
+
+```sh
+./compose.py -l ahoj
+# error: argument -l/--list: invalid int value: 'ahoj'
+```
+
+```sh
+./compose.py -l -d
+# error: argument -d/--diff: expected one argument
+```
 
 
-# is options used correctly?
---list
-should be used separately
+```sh
+./compose.py -d Fedora-Rawhide-20250821.n.0 -d rockylinux-1
+# composes DOES not match --list
+```
 
---diff one_compose --diff second_compose
-there are 2x --diff with checking real composes from (--list)
+```sh
+./compose.py -d Fedora-Rawhide-20250821.n.0 -d Fedora-Rawhide-20250820.n.0 -l
+# USE: -l OR -d
+# HINT: list composes OR diff
+--help
+```
 
-# wrong combination of options
+```
+./compose.py -d Fedora-Rawhide-20250821.n.0 -d Fedora-Rawhide-20250820.n.0 -d next
+# USE: -d one -d two
+# HINT: two composes only
+# see --help
+```
 
-❯ ./compose.py -l ahoj
-usage: compose.py [-h] [-u URL] [-r RPMSJSON] [-l [LIST_COMPOSES]] [-d TWO_COMPOSES]
-compose.py: error: argument -l/--list: invalid int value: 'ahoj'
-❯ ./compose.py -l -d
-usage: compose.py [-h] [-u URL] [-r RPMSJSON] [-l [LIST_COMPOSES]] [-d TWO_COMPOSES]
-compose.py: error: argument -d/--diff: expected one argument
-❯ ./compose.py -d Fedora-Rawhide-20250821.n.0 -d Fedora-Rawhide-20
-composes DOES not match --list
-❯ ./compose.py -d Fedora-Rawhide-20250821.n.0 -d rockylinux-1
-composes DOES not match --list
+---
 
+### ✅ **Good Usage**
 
-# GOOD USAGE
-## --list 
-### list all
-❯ ./compose.py -l
+#### 1. List all composes
+
+```sh
+./compose.py -l
+```
+Example output:
+```
 Fedora-Rawhide-20250807.n.0
 Fedora-Rawhide-20250807.n.1
 Fedora-Rawhide-20250808.n.0
-Fedora-Rawhide-20250809.n.0
-Fedora-Rawhide-20250810.n.0
-Fedora-Rawhide-20250811.n.0
-Fedora-Rawhide-20250812.n.0
-Fedora-Rawhide-20250812.n.1
-Fedora-Rawhide-20250813.n.0
-Fedora-Rawhide-20250813.n.1
-Fedora-Rawhide-20250814.n.0
-Fedora-Rawhide-20250814.n.1
-Fedora-Rawhide-20250815.n.0
-Fedora-Rawhide-20250816.n.0
-Fedora-Rawhide-20250817.n.0
-Fedora-Rawhide-20250818.n.0
-Fedora-Rawhide-20250819.n.0
-Fedora-Rawhide-20250820.n.0
+...
 Fedora-Rawhide-20250821.n.0
+```
 
-### list only 2 oldest avaiable composes, sort by the oldest
-❯ ./compose.py -l 2
+#### 2. List only 2 oldest available composes
+
+```sh
+./compose.py -l 2
+```
+Example output:
+```
 Fedora-Rawhide-20250807.n.0
 Fedora-Rawhide-20250807.n.1
+```
 
-## --diff , compare two composes
-Firstly it checks wheter composes really exist. It checks wheter user added two composes.
+#### 3. Compare two composes
 
+```sh
+./compose.py -d Fedora-Rawhide-20250821.n.0 -d Fedora-Rawhide-20250820.n.0
+```
+
+Example output:
+```
+old compose  : Fedora-Rawhide-20250820.n.0
+new compose  : Fedora-Rawhide-20250821.n.0
+temp dir:      /tmp/tmp_2g8lsxc
+Downloaded to: /tmp/tmp_2g8lsxc/Fedora-Rawhide-20250820.n.0-rpms.json
+Downloaded to: /tmp/tmp_2g8lsxc/Fedora-Rawhide-20250821.n.0-rpms.json
+
+# Output sample:
+golang-github-azure-sdk-resourcemanager-resourcegraph-armresourcegraph REMOVED golang-github-azure-sdk-resourcemanager-resourcegraph0:0.9.0-3
+greenboot REMOVED greenboot0:0.15.8-2
+greenboot-rs ADDED greenboot-rs0:0.16.0-3
+jfrog-cli ADDED jfrog-cli0:2.78.3-1
+...
+kernel CHANGED 0:6.17.0-0.rc2.24 -> 0:6.17.0-0.rc2.250820gb19a97d57c15.26
+...
+```
+
+#### Output legend
+
+- `ADDED`: Package present in the new compose, not in the old.
+- `REMOVED`: Package present in the old compose, not in the new.
+- `CHANGED`: Package present in both, but with different versions.
+
+---
+
+## Notes
+
+- Make sure to use valid compose names as shown with the `--list` option.
+- Only compare composes that exist in the list output.
+- Error messages will guide you if you provide incorrect input.
+
+---
+
+## Example: Full Comparison Output
+
+<details>
+<summary>Click to expand comparison output example</summary>
+
+```
 ❯ ./compose.py -d Fedora-Rawhide-20250821.n.0 -d Fedora-Rawhide-20250820.n.0
 old compose  : Fedora-Rawhide-20250820.n.0
 new compose  : Fedora-Rawhide-20250821.n.0
@@ -145,6 +235,11 @@ wine CHANGED 0:10.12-4 -> 0:10.13-1
 yasm CHANGED 0:1.3.0^20250625git121ab15-1 -> 0:1.3.0^20250625git121ab15-3
 zswap-cli CHANGED 0:1.0.0-4 -> 0:1.1.0-1
 
+```
+</details>
 
+---
 
+## License
 
+[MIT](LICENSE) or as specified in the repository.
