@@ -6,16 +6,13 @@ import json
 import os
 import re
 import requests
-
-# from typing import List
 import requests, re
-
 import tempfile
 
 
 def download_path(url: str):
     """
-    download all page in html
+    download the whole page in html
     create list by found 'href='
     go through list ^ and jump over 'start by ?' , some signs in the name
     """
@@ -40,7 +37,7 @@ def download_path(url: str):
 
 def download_rpmsjson(url: str, compose_list: list, rpmsjson: str):
     temp_dir = tempfile.mkdtemp()
-    print("temp dir:     ", temp_dir)
+    print("temp dir     ", temp_dir)
 
     file_paths = []
 
@@ -51,7 +48,7 @@ def download_rpmsjson(url: str, compose_list: list, rpmsjson: str):
         filepath = os.path.join(temp_dir, compose + "-rpms.json")
         with open(filepath, "wb") as f:
             f.write(r.content)
-        print("Downloaded to:", filepath)
+        print("downloaded   ", filepath)
 
         file_paths.append(filepath)
     return file_paths
@@ -59,16 +56,16 @@ def download_rpmsjson(url: str, compose_list: list, rpmsjson: str):
 
 def parse_rpmsjson(two_files: list):
     with open(two_files[0]) as f1:
-        d = json.load(f1)
+        data = json.load(f1)
         rpm_dict_f1 = dict()
-        for nevra in d["payload"]["rpms"]["Everything"]["x86_64"]:
+        for nevra in data["payload"]["rpms"]["Everything"]["x86_64"]:
             name = nevra.rsplit("-", 2)[0]
             version = "-".join(nevra.rsplit("-", 2)[1:]).rsplit(".", 2)[0]
             rpm_dict_f1[name] = version
     with open(two_files[1]) as f2:
-        d = json.load(f2)
+        data = json.load(f2)
         rpm_dict_f2 = dict()
-        for nevra in d["payload"]["rpms"]["Everything"]["x86_64"]:
+        for nevra in data["payload"]["rpms"]["Everything"]["x86_64"]:
             name = nevra.rsplit("-", 2)[0]
             version = "-".join(nevra.rsplit("-", 2)[1:]).rsplit(".", 2)[0]
             rpm_dict_f2[name] = version
@@ -161,8 +158,8 @@ def main() -> None:
                 and args.two_composes[1] in wwwsubdirs_list
             ):
                 two_composes = sorted(args.two_composes)
-                print("old compose  :", two_composes[0])
-                print("new compose  :", two_composes[1])
+                print("old compose  ", two_composes[0])
+                print("new compose  ", two_composes[1])
                 compose_files=download_rpmsjson(args.url, two_composes, args.rpmsjson)
                 #compose_files = [
                 #    "/tmp/tmpyqg3625o/Fedora-Rawhide-20250820.n.0-rpms.json",
