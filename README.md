@@ -242,4 +242,4 @@ zswap-cli CHANGED 0:1.0.0-4 -> 0:1.1.0-1
 
 ## License
 
-[MIT](LICENSE) or as specified in the repository.
+[GPLv3](LICENSE) or as specified in the repository.
