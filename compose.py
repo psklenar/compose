@@ -15,13 +15,17 @@ def download_path(url: str):
     download the whole page in html
     create list by found 'href='
     go through list ^ and jump over 'start by ?' , some signs in the name
+    
+    Returns:
+    subdir (list): Fedora-Rawhide-20250810.n.0, ...
+    
     """
 
     html = requests.get(url).text
 
     hrefs = re.findall(r'href="([^"]+)"', html)
 
-    # print('DEBUG_START\n' + "\n".join(hrefs) + '\nDEBUG_END')
+    #print('DEBUG_START\n' + "\n".join(hrefs) + '\nDEBUG_END')
 
     subdirs = []
     for h in hrefs:
@@ -31,11 +35,18 @@ def download_path(url: str):
             continue
         if h.endswith("/"):
             subdirs.append(h.strip("/"))
-
     return subdirs
 
 
 def download_rpmsjson(url: str, compose_list: list, rpmsjson: str):
+    """
+    Args:
+        url (str): url with rawhide composes
+        compose_list (list): list with two selected composes from cmd
+        rpmsjson (str): rpms.json
+    Returns:
+        file_paths (list): two files with composes, in temp
+    """
     temp_dir = tempfile.mkdtemp()
     print("temp dir     ", temp_dir)
 
@@ -55,6 +66,12 @@ def download_rpmsjson(url: str, compose_list: list, rpmsjson: str):
 
 
 def parse_rpmsjson(two_files: list):
+    """it prints removed, added and changed rpms
+
+    Args:
+        two_files (list): two files from temp
+    Return: None
+    """
     with open(two_files[0]) as f1:
         data = json.load(f1)
         rpm_dict_f1 = dict()
@@ -94,7 +111,7 @@ def parse_rpmsjson(two_files: list):
 
 def main() -> None:
     """
-    some options with default values
+    options with default values
     :return: None
     """
     parser = argparse.ArgumentParser(description="compose rpm change log")
@@ -143,7 +160,7 @@ def main() -> None:
         exit(1)
 
     wwwsubdirs_list = download_path(args.url)
-    # 1. TASK = Use Python to create a CLI tool which ...
+    # 1. TASK = Use Python to create a CLI tool which list composes...
     if args.list_composes is not None:
         wwwsubdirs_list = sorted(
             wwwsubdirs_list, reverse=False
